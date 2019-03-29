@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
         git \
         libpq-dev \
         libsqlite3-dev \
+        sqlite3 \
+        sqlite3-doc \
         libssl-dev \
     && gem install rails -v "${RAILS_VERSION}" \
     && curl -fSL https://github.com/Shopify/shipit-engine/archive/v"${SHIPIT_VERSION}".tar.gz -o shipit.tar.gz \
@@ -33,6 +35,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
     && nvm alias default $NODE_VERSION \
     && nvm use default \
     && apt-get remove --purge --auto-remove -y build-essential curl default-libmysqlclient-dev libpq-dev libsqlite3-dev libssl-dev
+
+COPY database.yml /usr/src/shipit-engine-"${SHIPIT_VERSION}"/config
 
 EXPOSE 3000
 
