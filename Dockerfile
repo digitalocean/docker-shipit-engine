@@ -1,5 +1,7 @@
 FROM ruby:2.6.2-alpine3.9
 
+COPY entrypoint.sh /usr/local/bin/
+
 ENV RAILS_VERSION 5.2.3
 ENV SHIPIT_VERSION 0.27.1
 
