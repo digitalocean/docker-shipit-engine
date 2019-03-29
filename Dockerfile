@@ -12,7 +12,7 @@ ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # throw errors if Gemfile has been modified since Gemfile.lock
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \
         build-essential \
         curl \
         default-libmysqlclient-dev \
@@ -31,10 +31,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && . $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
-    && nvm use default
+    && nvm use default \
+    && apt-get remove --purge --auto-remove -y build-essential curl default-libmysqlclient-dev libpq-dev libsqlite3-dev libssl-dev
 
 EXPOSE 3000
 
 ENTRYPOINT ["entrypoint.sh"]
 
-CMD ./usr/src/shipit-engine-"${SHIPIT_VERSION}"/bin/rails server -b 0.0.0.0 -e production
+CMD ./usr/src/shipit-engine-"${SHIPIT_VERSION}"/bin/rails server -b 0.0.0.0

@@ -2,6 +2,8 @@
 
 set -e
 
+ENV:="production"
+
 if [ -z "${SECRET_KEY_BASE}" ]; then
     echo "SECRET_KEY_BASE variable not defined."
     exit 1
