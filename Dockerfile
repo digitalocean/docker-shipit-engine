@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
     && echo "gem 'sidekiq'" >> /usr/src/shipit-engine-"${SHIPIT_VERSION}"/Gemfile \
     && echo "gem 'redis-rails'" >> /usr/src/shipit-engine-"${SHIPIT_VERSION}"/Gemfile \
     && echo "gem 'listen'" >> /usr/src/shipit-engine-"${SHIPIT_VERSION}"/Gemfile \
-    && bundle install \
+    && bundle install --no-binstubs \
     && curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | bash \
     && . $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
