@@ -8,11 +8,11 @@ default: &default
   password: <%= ENV.fetch("DATABASE_PASSWORD") { "" } %>
   timeout: <%= ENV.fetch("DATABASE_TIMEOUT") { 5000 } %>
 
+production:
+  <<: *default
+
 development:
   <<: *default
 
 test:
-  <<: *default
-
-production:
   <<: *default
