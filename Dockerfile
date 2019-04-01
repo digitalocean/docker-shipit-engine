@@ -38,4 +38,6 @@ ENTRYPOINT ["entrypoint.sh"]
 
 WORKDIR /shipit
 
+COPY config/ config/
+
 CMD bin/rails server -b 0.0.0.0
