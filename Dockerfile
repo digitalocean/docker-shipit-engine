@@ -36,4 +36,6 @@ EXPOSE 3000
 
 ENTRYPOINT ["entrypoint.sh"]
 
-CMD /shipit/bin/rails server -b 0.0.0.0
+WORKDIR /shipit
+
+CMD bin/rails server -b 0.0.0.0
