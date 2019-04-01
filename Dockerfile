@@ -23,15 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
         sqlite3-doc \
         libssl-dev \
     && gem install rails -v "${RAILS_VERSION}" \
-    && curl -fSL https://github.com/Shopify/shipit-engine/archive/v"${SHIPIT_VERSION}".tar.gz -o shipit.tar.gz \
-    && mkdir -p /usr/src \
-    && tar -zxC /usr/src -f shipit.tar.gz \
-    && rm -rf ./shipit.tar.gz \
-    && cd /usr/src/shipit-engine-"${SHIPIT_VERSION}" \
-    && echo "gem 'sidekiq'" >> /usr/src/shipit-engine-"${SHIPIT_VERSION}"/Gemfile \
-    && echo "gem 'redis-rails'" >> /usr/src/shipit-engine-"${SHIPIT_VERSION}"/Gemfile \
-    && echo "gem 'listen'" >> /usr/src/shipit-engine-"${SHIPIT_VERSION}"/Gemfile \
-    && bundle install --no-binstubs \
+    && rails new shipit --skip-action-cable --skip-turbolinks --skip-action-mailer --skip-active-storage -m https://raw.githubusercontent.com/Shopify/shipit-engine/v"${SHIPIT_VERSION}"/template.rb \
     && curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | bash \
     && . $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
@@ -40,10 +32,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
     && apt-get remove --purge --auto-remove -y build-essential curl default-libmysqlclient-dev libpq-dev libsqlite3-dev libssl-dev \
     && apt-get autoremove -y
 
-COPY config/ /usr/src/shipit-engine-"${SHIPIT_VERSION}"/config/
-
 EXPOSE 3000
 
 ENTRYPOINT ["entrypoint.sh"]
 
-CMD ./usr/src/shipit-engine-"${SHIPIT_VERSION}"/bin/rails server -b 0.0.0.0
+CMD /shipit/bin/rails server -b 0.0.0.0
