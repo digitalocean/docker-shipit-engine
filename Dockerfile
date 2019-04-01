@@ -28,15 +28,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
     && tar -zxC /usr/src -f shipit.tar.gz \
     && rm -rf ./shipit.tar.gz \
     && cd /usr/src/shipit-engine-"${SHIPIT_VERSION}" \
+    && echo "gem 'sidekiq'" >> /usr/src/shipit-engine-"${SHIPIT_VERSION}"/Gemfile \
+    && echo "gem 'redis-rails'" >> /usr/src/shipit-engine-"${SHIPIT_VERSION}"/Gemfile \
     && bundle install \
     && curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | bash \
     && . $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
     && nvm use default \
-    && apt-get remove --purge --auto-remove -y build-essential curl default-libmysqlclient-dev libpq-dev libsqlite3-dev libssl-dev
+    && apt-get remove --purge --auto-remove -y build-essential curl default-libmysqlclient-dev libpq-dev libsqlite3-dev libssl-dev \
+    && apt-get autoremove -y
 
-COPY database.yml /usr/src/shipit-engine-"${SHIPIT_VERSION}"/config
+COPY config/ /usr/src/shipit-engine-"${SHIPIT_VERSION}"/config/
 
 EXPOSE 3000
 
