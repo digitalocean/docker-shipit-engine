@@ -1,0 +1,44 @@
+version: '3'
+services:
+  postgres:
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+    image: postgres:11-alpine
+    ports:
+      - 5432
+    volumes:
+      - .compose-data/postgresql:/var/lib/postgresql/data/pgdata
+  redis:
+    command: redis-server --appendonly yes
+    image: redis:5-alpine
+    ports:
+      - 6379
+    volumes:
+      - .compose-data/redis:/data
+  app:
+    build: .
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_URL=postgres://postgres:@postgres:5432
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY_BASE=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    restart: on-failure
+    volumes:
+      - ${PWD}/config/secrets.yml:/usr/src/shipit/config/secrets.yml:ro
+    ports:
+      - 3000:3000
+  worker:
+    build: .
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_URL=postgres://postgres:@postgres:5432
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY_BASE=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    restart: on-failure
+    volumes:
+      - ${PWD}/config/secrets.yml:/usr/src/shipit/config/secrets.yml:ro
+    command: bundle exec sidekiq -C config/sidekiq.yml
