@@ -41,4 +41,5 @@ services:
     restart: on-failure
     volumes:
       - ${PWD}/config/secrets.yml:/usr/src/shipit/config/secrets.yml:ro
+    entrypoint: ''
     command: bundle exec sidekiq -C config/sidekiq.yml
