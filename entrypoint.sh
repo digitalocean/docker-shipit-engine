@@ -17,7 +17,4 @@ if [ -z "${SECRET_KEY_BASE}" ]; then
     exit 1
 fi
 
-# Create database, if necessary
-bundle exec rake railties:install:migrations db:create db:migrate
-
 exec "$@"
