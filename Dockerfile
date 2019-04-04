@@ -1,15 +1,15 @@
 FROM ruby:2.6.2-alpine
 
 RUN apk add --no-cache --update \
-  build-base \
-  git \
-  linux-headers \
-  nodejs \
-  postgresql-client \
-  postgresql-dev \
-  sqlite-dev \
-  tzdata \
-  yarn
+    git \
+    nodejs \
+    postgresql-client \
+    tzdata \
+    yarn \
+    && apk add --no-cache --virtual .build-deps \
+      build-base \
+      postgresql-dev \
+      sqlite-dev
 
 ENV CI=true
 ENV SHIPIT_VERSION=v0.27.1
@@ -25,6 +25,8 @@ WORKDIR /usr/src
 RUN rails _5.2_ new shipit \
   --skip-action-cable --skip-turbolinks --skip-action-mailer --skip-active-storage \
   -m https://raw.githubusercontent.com/Shopify/shipit-engine/${SHIPIT_VERSION}/template.rb
+
+RUN apk del .build-deps
 
 WORKDIR /usr/src/shipit
 
