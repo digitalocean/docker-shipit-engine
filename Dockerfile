@@ -3,14 +3,12 @@ FROM ruby:2.6.2-alpine
 RUN apk add --no-cache --update \
   build-base \
   git \
-  htop \
   linux-headers \
   nodejs \
   postgresql-client \
   postgresql-dev \
   sqlite-dev \
   tzdata \
-  vim \
   yarn
 
 ENV CI=true
