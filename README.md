@@ -2,10 +2,10 @@
 
 Docker image for https://github.com/Shopify/shipit-engine
 
-## Running locally
+## Running on Docker Compose
 
 * Create `config/secrets.yml` based off of `config/secrets.example.yml` and fill in your GitHub App's info
-* Run `make start-local` to start a local instance. To stop it, run: `make stop-local`.
+* Run `make start` to start an instance. To stop it, run: `make stop`.
 
 ## Running on Kubernetes
 
@@ -13,9 +13,6 @@ Docker image for https://github.com/Shopify/shipit-engine
 
 ## Database Management
 
-Locally, on first run, you'll need to create the database. Do so by running the following:
+On first run, you'll need to create the database. Do so by running `make setup`.
 
-```text
-make shell
-bundle exec rake railties:install:migrations db:create db:migrate
-```
+After upgrades, you may need to run database migrations. Do so by running `make upgrade`.
