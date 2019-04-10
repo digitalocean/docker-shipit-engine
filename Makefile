@@ -5,14 +5,20 @@ GITCOMMIT := $(shell git rev-parse --short HEAD 2>/dev/null)
 BASE_IMAGE_URL := $(DOCKER_ORG)/$(NAME)
 IMAGE_URL := $(BASE_IMAGE_URL):$(GITCOMMIT)
 
-image-build:
+build:
 	docker build --pull -t ${IMAGE_URL} .
 
 shell:
 	docker-compose exec app sh
 
-start-local:
+start:
 	docker-compose up --build -d && docker-compose logs -f
 
-stop-local:
+stop:
 	docker-compose down
+
+setup:
+	docker-compose run app setup
+
+upgrade:
+	docker-compose run app upgrade
