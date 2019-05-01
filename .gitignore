@@ -1,3 +1,2 @@
 .compose-data/**/*
 .env
-config/secrets.yml
