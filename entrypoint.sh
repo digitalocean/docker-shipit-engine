@@ -2,8 +2,8 @@
 
 set -e
 
-if [ -z "${DATABASE_URL}" ]; then
-    echo "DATABASE_URL variable not defined."
+if [ -z "${RDS_HOSTNAME}" ]; then
+    echo "RDS_HOSTNAME variable not defined."
     exit 1
 fi
 
