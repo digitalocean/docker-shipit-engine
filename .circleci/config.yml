@@ -1,0 +1,26 @@
+# Circleci Version 2
+version: 2
+
+jobs:
+  build-push:
+    docker:
+      - touchbistro/alpine-ruby:2.6.2-build
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+      	  name: Build
+      	  command: dive build --build-arg github_key=$GITHUB_RELEASE_SSH_KEY_BASE64 --target release . -t $AWS_ACCOUNT_ID.$ECR/shipit
+      - run:
+          name: Push
+          command: |
+            eval $(aws ecr get-login --region us-east-1 --no-include-email) &&
+            docker push $AWS_ACCOUNT_ID.$ECR/shipit
+
+workflows:
+  version: 2.1
+  build-test-deploy:
+    jobs:
+      - build-push:
+          only:
+            - master
