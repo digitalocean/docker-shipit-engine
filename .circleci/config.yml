@@ -8,7 +8,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build
-          command: dive build --build-arg github_key=$GITHUB_RELEASE_SSH_KEY_BASE64 --target release . -t $AWS_ACCOUNT_ID.$ECR/shipit
+          command: docker build --build-arg github_key=$GITHUB_RELEASE_SSH_KEY_BASE64 --target release . -t $AWS_ACCOUNT_ID.$ECR/shipit
       - run:
           name: Push
           command: |
