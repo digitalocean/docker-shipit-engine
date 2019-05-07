@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build-push:
     docker:
-      - touchbistro/alpine-ruby:2.6.2-build
+      - image: touchbistro/alpine-ruby:2.6.2-build
     steps:
       - checkout
       - setup_remote_docker
@@ -17,8 +17,9 @@ jobs:
 
 workflows:
   version: 2
-  build-test-deploy:
+  build-push:
     jobs:
       - build-push:
-          only:
-            - master
+         filters:
+           branches:
+             only: master
