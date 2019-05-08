@@ -1,25 +1,80 @@
 version: 2.1
+description: "Build-test-deploy workflow for shipit service."
+
+orbs:
+  tb-services: touchbistro/tb-services@volatile
 jobs:
-  build-push:
+  test:
     docker:
       - image: touchbistro/alpine-node:10-build
     steps:
       - checkout
       - setup_remote_docker
+      - tb-services/login-ecr
       - run:
-          name: Build
-          command: docker build --build-arg github_key=$GITHUB_RELEASE_SSH_KEY_BASE64 --target release . -t $AWS_ACCOUNT_ID.$ECR/shipit
-      - run:
-          name: Push
+          name: Run docker-compose up, migrations and tests.
           command: |
-            eval $(aws ecr get-login --region us-east-1 --no-include-email) &&
-            docker push $AWS_ACCOUNT_ID.$ECR/shipit
+            export CIRCLE_BRANCH_ESCAPED=$(echo "$CIRCLE_BRANCH" | tr '/' -) &&
+            export RELEASE_IMAGE=$AWS_ACCOUNT_ID.$ECR/$PROJECT:$CIRCLE_BRANCH_ESCAPED-$CIRCLE_SHA1-canary &&
+            RELEASE_IMAGE=$RELEASE_IMAGE docker-compose -f ./docker-compose.ci.yml up -d postgres redis &&
+            docker-compose -f ./docker-compose.ci.yml run shipit setup &&
+            docker-compose -f ./docker-compose.ci.yml run shipit bundle exec puma -C config/puma.rb &&
+            if docker-compose -f ./docker-compose.ci.yml exec shipit-worker curl https://shipit:3000/ ; then
+              echo "Release artifact is valid"
+              exit 0
+            else
+              echo "Problem with release artifact"
+              docker logs shipit_container
+              exit 1
+            fi
 
 workflows:
-  version: 2
-  build-push:
+  version: 2.1
+  build-test-deploy:
     jobs:
-      - build-push:
-         filters:
-           branches:
-             only: master
+      - tb-services/build-push-canary:
+          build_args: "--build-arg github_key=$GITHUB_RELEASE_SSH_KEY_BASE64"
+      - test:
+          requires:
+            - tb-services/build-push-canary
+      - tb-services/tag-push-release-from-canary:
+          requires:
+            - test
+      - tb-services/deploy-staging-ecs:
+          requires:
+            - tb-services/tag-push-release-from-canary
+          variant: internal
+          image_tag: $CIRCLE_SHA1
+          filters:
+            branches:
+              only:
+                - /release.*/
+      - tb-services/migrate-staging-ecs:
+          requires:
+            - tb-services/deploy-staging-ecs
+          container_cmd: "bundle exec rake railties:install:migrations db:migrate"
+          variant: internal
+          image_tag: $CIRCLE_SHA1
+          filters:
+            branches:
+              only:
+                - /release.*/
+      - tb-services/deploy-production-ecs:
+          requires:
+            - tb-services/tag-push-release-from-canary
+          variant: internal
+          image_tag: $CIRCLE_SHA1
+          filters:
+            branches:
+              only:
+                - master
+      - tb-services/migrate-production-ecs:
+          requires:
+            - tb-services/deploy-production-ecs
+          container_cmd: "bundle exec rake railties:install:migrations db:migrate"
+          variant: internal
+          image_tag: $CIRCLE_SHA1
+          filters:
+            branches:
+              only:
+                - master

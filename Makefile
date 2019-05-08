@@ -1,9 +1,9 @@
-NAME := docker-shipit-engine
-DOCKER_ORG := digitalocean
+NAME := shipit
+DOCKER_ORG := touchbistro
 GITCOMMIT := $(shell git rev-parse --short HEAD 2>/dev/null)
 
 BASE_IMAGE_URL := $(DOCKER_ORG)/$(NAME)
-IMAGE_URL := $(BASE_IMAGE_URL):$(GITCOMMIT)
+IMAGE_URL := ${AWS_ACCOUNT_ID}.${ECR}/${PROJECT}:$(BASE_IMAGE_URL):$(GITCOMMIT)
 
 build:
 	docker build --pull -t ${IMAGE_URL} .

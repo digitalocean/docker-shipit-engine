@@ -1,0 +1,37 @@
+version: '2.4'
+services:
+  postgres:
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+    image: postgres:10.6-alpine
+    ports:
+      - 5432
+  redis:
+    command: redis-server --appendonly yes
+    image: redis:5-alpine
+    ports:
+      - 6379
+  shipit:
+    build: .
+    image: ${RELEASE_IMAGE}
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - SHIPIT_HOST=shipit
+      - DATABASE_URL=postgres://postgres:@postgres:5432
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY_BASE=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ports:
+      - 3000:3000
+  shipit-worker:
+    build: .
+    image: ${RELEASE_IMAGE}
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_URL=postgres://postgres:@postgres:5432
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY_BASE=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    command: bundle exec sidekiq -C config/sidekiq.yml
