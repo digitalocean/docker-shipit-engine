@@ -1,4 +1,4 @@
-FROM ruby:2.6.3-alpine3.10@sha256:cbcf3c98e7bd7dfd0a535c91a6c186eed483680cefe0c99ed1ed46d6efbb0e7b
+FROM ruby:2.6.4-alpine3.10@sha256:f3eeb2b71ae7c004ca57ddb12618fde07dece33e6a0f0a50b53f03b83be76174
 
 RUN apk add --no-cache --update \
     git \
@@ -12,7 +12,7 @@ RUN apk add --no-cache --update \
       sqlite-dev
 
 ENV CI=true
-ENV SHIPIT_VERSION=v0.28.0
+ENV SHIPIT_VERSION=v0.28.1
 
 RUN git config --global user.email "you@example.com"
 RUN git config --global user.name "Your Name"
